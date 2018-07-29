@@ -1,27 +1,21 @@
-fichero_name <- "household_power_consumption.txt"
 
-consumption <- read.table(fichero_name, header=TRUE, sep=";", stringsAsFactors=FALSE, dec=".")
+NEI <- readRDS("summarySCC_PM25.rds")
+SCC <- readRDS("Source_Classification_Code.rds")
 
-subSetData <- consumption[consumption$Date %in% c("1/2/2007","2/2/2007") ,]
 
-goodConsumption <- consumption[ grepl("^1/2/2007|^2/2/2007", consumption[,1]),]
+#Merge both tables
+NEISCC <- merge(NEI, SCC, by="SCC")
 
-datetime <- strptime(paste(goodConsumption$Date, goodConsumption$Time, sep=" "), "%d/%m/%Y %H:%M:%S") 
+coal <- NEISCC[grepl("Coal|coal", NEISCC$EI.Sector ),]
 
-png("plot4.png", width=480, height=480)
+sumcoal <- tapply(coal$Emissions, coal$year, sum, na.rm=TRUE)
 
-par(mfrow = c(2, 2)) 
-# First plot
-plot(datetime, goodConsumption$Global_active_power,type = "l" , xlab="", ylab="Global Active Power (kilowatts)")
+png(filename='plot4.png', width=480, height=480, units='px')
 
-plot(datetime, goodConsumption$Voltage,type = "l" , xlab="", ylab="Voltage")
+barplot(sumcoal, xlab = "Years", ylab = "Emissions", main = "Total emissions in coal")
 
-# Third plot
-plot(datetime, goodConsumption$Sub_metering_1,type = "l" , col="black",ylab="Energy sub metering")
-lines(datetime, goodConsumption$Sub_metering_2, type="l", col="red")
-lines(datetime, goodConsumption$Sub_metering_3, type="l", col="blue")
 
-# Fourth Plot
-plot(datetime, goodConsumption$Global_reactive_power,type = "l" , xlab="", ylab="Global Reactive Power (kilowatts)")
 
 dev.off()
+
+

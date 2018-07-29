@@ -1,15 +1,16 @@
-fichero_name <- "household_power_consumption.txt"
+NEI <- readRDS("summarySCC_PM25.rds")
 
-consumption <- read.table(fichero_name, header=TRUE, sep=";", stringsAsFactors=FALSE, dec=".")
 
-subSetData <- consumption[consumption$Date %in% c("1/2/2007","2/2/2007") ,]
+Baltimore <- subset(NEI, fips=="24510")
+sumYearBaltimore <- tapply(Baltimore$Emissions, Baltimore$year, sum, na.rm=TRUE)
 
-goodConsumption <- consumption[ grepl("^1/2/2007|^2/2/2007", consumption[,1]),]
 
-datetime <- strptime(paste(goodConsumption$Date, goodConsumption$Time, sep=" "), "%d/%m/%Y %H:%M:%S") 
+png(filename='plot2.png')
 
-png("plot2.png", width=480, height=480)
+barplot(sumYearBaltimore, xlab = "Years", ylab = "Emissions", main = "Total emissions over the Years in Baltimore City")
 
-plot(datetime, goodConsumption$Global_active_power,type = "l" , xlab="", ylab="Global Active Power (kilowatts)")
 dev.off()
+
+
+
 
